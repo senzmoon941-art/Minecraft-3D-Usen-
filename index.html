@@ -1,0 +1,241 @@
+<!DOCTYPE html><html lang="id"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Minato KCM</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="rotate-notice">
+    <div>
+      <h2>Putar ke landscape</h2>
+      <p>Game ini dimainkan secara horizontal.</p>
+    </div>
+  </div>
+
+  <div id="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <div id="hud" class="hidden">
+      <div id="hud-left">
+        <div class="panel" id="p1-panel">
+          <canvas class="avatar" id="p1-avatar" width="64" height="40"></canvas>
+          <div class="bars">
+            <div class="name" id="p1-name">P1</div>
+            <div class="bar"><div class="fill hp" id="p1-hp"></div></div>
+            <div class="bar"><div class="fill mp" id="p1-mp"></div></div>
+          </div>
+        </div>
+        <div id="skill-row"></div>
+      </div>
+
+      <div id="hud-center">
+        <div id="score"><span id="score-a">0</span><i>:</i><span id="score-b">0</span></div>
+        <div id="score-sub"></div>
+        <canvas id="minimap" width="300" height="34"></canvas>
+      </div>
+
+      <div id="hud-right">
+        <div class="tools">
+          <button id="btn-voice" class="tool">Voice</button>
+          <button id="btn-sound" class="tool">Sound</button>
+          <button id="btn-fullscreen" class="tool">Fullscreen</button>
+          <button id="btn-menu" class="tool">Menu</button>
+        </div>
+        <div class="panel hidden" id="p2-panel">
+          <div class="bars">
+            <div class="name" id="p2-name">P2</div>
+            <div class="bar"><div class="fill hp" id="p2-hp"></div></div>
+            <div class="bar"><div class="fill mp" id="p2-mp"></div></div>
+          </div>
+          <canvas class="avatar" id="p2-avatar" width="64" height="40"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div id="banner"></div>
+    <div id="fps-counter" class="hidden">0 FPS</div>
+
+    <div id="mobile-controls">
+      <div id="joystick-zone">
+        <div id="joystick-base"><div id="joystick-stick"></div></div>
+      </div>
+      <div id="action-buttons">
+        <button class="btn-action btn-skill" id="btn-skill1"><span class="cdnum"></span></button>
+        <button class="btn-action btn-skill" id="btn-skill2"><span class="cdnum"></span></button>
+        <button class="btn-action btn-skill" id="btn-skill3"><span class="cdnum"></span></button>
+        <button class="btn-action btn-skill" id="btn-skill4"><span class="cdnum"></span></button>
+        <button class="btn-action btn-skill" id="btn-skill5"><span class="cdnum"></span></button>
+        <button class="btn-action" id="btn-dash">DASH</button>
+        <button class="btn-action btn-jump" id="btn-jump">JUMP</button>
+        <button class="btn-action btn-attack" id="btn-attack">ATK</button>
+      </div>
+    </div>
+
+    <section id="loading" class="screen">
+      <div class="loader"></div>
+      <p>Loading</p>
+    </section>
+
+    <section id="menu" class="screen hidden">
+      <h1>MINATO KCM</h1>
+      <p class="subtitle">Pilih mode</p>
+      <div class="menu-list">
+        <button class="btn-main" data-mode="battle">BATTLE <small>2v2 / 3v3 + turret</small></button>
+        <button class="btn-main" data-mode="versus">VERSUS <small>1v1, CPU atau PvP</small></button>
+        <button class="btn-main" data-mode="rush">RUSH <small>wave tanpa henti</small></button>
+        <button class="btn-main ghost" id="btn-hudcfg">CUSTOM HUD</button>
+        <button class="btn-main ghost" id="btn-settings">PENGATURAN</button>
+      </div>
+      <p class="controls-hint">
+        Gerak A D / ← → · Lompat W / ↑ · Dash E · Attack Z (tahan = combo) · Skill 1–5
+      </p>
+    </section>
+
+    <section id="settings" class="screen hidden">
+      <header class="lobby-head">
+        <button id="settings-back" class="btn-ghost">‹ Kembali</button>
+        <h2>Pengaturan</h2>
+        <span style="width:70px"></span>
+      </header>
+      <div class="hudcfg-grid">
+        <label class="hcfg-row">
+          <span>Kualitas grafik</span>
+          <span class="chips" id="opt-quality">
+            <button class="chip" data-q="low">Low Pixel</button>
+            <button class="chip" data-q="hd">HD Pixel</button>
+          </span>
+          <span></span>
+        </label>
+        <label class="hcfg-row">
+          <span>Tampilkan FPS</span>
+          <span class="chips" id="opt-fps">
+            <button class="chip" data-v="0">Off</button>
+            <button class="chip" data-v="1">On</button>
+          </span>
+          <span></span>
+        </label>
+        <label class="hcfg-row">
+          <span>Shadow</span>
+          <span class="chips" id="opt-shadow">
+            <button class="chip" data-v="0">Off</button>
+            <button class="chip" data-v="1">On</button>
+          </span>
+          <span></span>
+        </label>
+        <label class="hcfg-row">
+          <span>Reflection</span>
+          <span class="chips" id="opt-reflect">
+            <button class="chip" data-v="0">Off</button>
+            <button class="chip" data-v="1">On</button>
+          </span>
+          <span></span>
+        </label>
+        <label class="hcfg-row" id="opt-reflect-op-row">
+          <span>Opasitas reflection</span>
+          <input type="range" id="opt-reflect-op" min="0.05" max="0.5" step="0.05">
+          <b id="opt-reflect-op-v"></b>
+        </label>
+        <label class="hcfg-row">
+          <span>Upscaling</span>
+          <span class="chips" id="opt-upscale">
+            <button class="chip" data-v="0">Off</button>
+            <button class="chip" data-v="1">On</button>
+          </span>
+          <span></span>
+        </label>
+        <label class="hcfg-row">
+          <span>Frame Generation <small>(beta)</small></span>
+          <span class="chips" id="opt-framegen">
+            <button class="chip" data-v="0">Off</button>
+            <button class="chip" data-v="1">On</button>
+          </span>
+          <span></span>
+        </label>
+      </div>
+      <p class="lobby-hint">Shadow &amp; Reflection saling eksklusif (nyalain salah satu bakal matiin yang lain). Upscaling: render lebih kecil terus di-upscale buat hemat performa. Frame Generation (beta): interpolasi gerakan biar lebih mulus di layar refresh rate tinggi, masih eksperimental.</p>
+    </section>
+
+    <section id="hudcfg" class="screen hidden">
+      <header class="lobby-head">
+        <button id="hudcfg-back" class="btn-ghost">‹ Kembali</button>
+        <h2>Custom HUD</h2>
+        <span style="width:70px"></span>
+      </header>
+      <div class="hudcfg-grid">
+        <label class="hcfg-row">
+          <span>Ukuran tombol</span>
+          <input type="range" id="hcfg-scale" min="0.75" max="1.35" step="0.05">
+          <b id="hcfg-scale-v"></b>
+        </label>
+        <label class="hcfg-row">
+          <span>Transparansi tombol</span>
+          <input type="range" id="hcfg-opacity" min="0.35" max="1" step="0.05">
+          <b id="hcfg-opacity-v"></b>
+        </label>
+        <label class="hcfg-row">
+          <span>Posisi joystick</span>
+          <span class="chips" id="hcfg-side">
+            <button class="chip" data-side="left">Kiri</button>
+            <button class="chip" data-side="right">Kanan</button>
+          </span>
+        </label>
+        <label class="hcfg-row">
+          <span>Jarak dari tepi bawah</span>
+          <input type="range" id="hcfg-bottom" min="0" max="40" step="2">
+          <b id="hcfg-bottom-v"></b>
+        </label>
+      </div>
+      <div id="hudcfg-preview">
+        <div id="mobile-controls-preview" class="hud-preview-box">
+          <div class="joystick-mini"><div></div></div>
+          <div class="actions-mini">
+            <span>1</span><span>2</span><span>3</span><span>4</span>
+            <span>5</span><span>D</span><span>J</span><span>A</span>
+          </div>
+        </div>
+      </div>
+      <p class="lobby-hint">Preview kasar — bentuk aslinya bulat penuh kaya di dalam game.</p>
+      <button class="btn-main small" id="hcfg-reset">Reset default</button>
+    </section>
+
+    <section id="lobby" class="screen hidden">
+      <header class="lobby-head">
+        <button id="lobby-back" class="btn-ghost">‹ Kembali</button>
+        <h2 id="lobby-title">Lobby</h2>
+        <button id="lobby-start" class="btn-main small">START</button>
+      </header>
+      <div class="lobby-opts">
+        <div class="chips" id="opt-size"></div>
+        <div class="chips" id="opt-diff"></div>
+      </div>
+      <div class="teams">
+        <div class="team" id="team-a"><h3>Tim 1</h3><div class="slots"></div></div>
+        <div class="team" id="team-b"><h3>Tim 2</h3><div class="slots"></div></div>
+      </div>
+      <p class="lobby-hint" id="lobby-hint"></p>
+    </section>
+
+    <div id="picker" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-head"><span>Pilih karakter</span><button id="picker-close" class="btn-ghost">Tutup</button></div>
+        <div id="picker-grid"></div>
+      </div>
+    </div>
+
+    <section id="result" class="screen hidden">
+      <h2 id="result-title"></h2>
+      <p id="result-sub"></p>
+      <div class="menu-list row">
+        <button id="result-again" class="btn-main small">Ulang</button>
+        <button id="result-lobby" class="btn-main small ghost">Lobby</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="js/audio.js"></script>
+  <script src="js/cd.js"></script>
+  <script src="js/game.js"></script>
+
+</body></html>
